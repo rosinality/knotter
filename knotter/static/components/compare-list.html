@@ -1,0 +1,86 @@
+<link rel="import" href="../bower_components/polymer/polymer.html">
+
+<link rel="import" href="../bower_components/iron-selector/iron-selector.html">
+
+<link rel="import" href="compare-item.html">
+
+<dom-module id="compare-list">
+    <template>
+        <paper-icon-button icon="add" alt="add"
+                title="add" on-click="addClick"></paper-icon-button>
+            <paper-icon-button icon="remove" alt="remove"
+                title="remove" on-click="removeClick"></paper-icon-button>
+        <iron-selector id="compare-group" selected="{{selected}}"
+            on-selected="selectGroup">
+            <template is="dom-repeat" items="[[groups]]">
+                <compare-item
+                    checked="{{item.checked}}"
+                    nodes="[[item.nodes]]" points="[[item.points]]"
+                    no="[[item.no]]" selected="{{item.selected}}"
+                    on-checked-changed="checkChange">
+                </compare-item>
+            </template>
+        </iron-selector>
+    </template>
+
+    <script>
+        Polymer({
+            is: 'compare-list',
+
+            properties: {
+                groups: {
+                    type: Array,
+                    value: [],
+                    notify: true
+                },
+
+                selected: {
+                    type: Number,
+                    value: 0,
+                    notify: true
+                }
+            },
+
+            ready: function () {
+                this.groups = [{no: 0, selected: true, checked: false, nodes: 0, points: 0},
+                                {no: 1, selected: false, checked: false, nodes: 0, points: 0}];
+            },
+
+            isSelected: function (index, selected) {
+                return index == selected;
+            },
+
+            selectGroup: function () {
+                for (var i = 0; i < this.groups.length; i++) {
+                    this.set('groups.' + i + '.selected', false);
+                }
+                this.set('groups.' + this.selected + '.selected', true);
+                this.fire('group-selected', this.selected);
+            },
+
+            addClick: function (e) {
+                var newGroup = {no: -1, selected: false, nodes: 0, points: 0};
+                newGroup.no = this.groups.length;
+                this.push('groups', newGroup);
+            },
+
+            checkChange: function (e) {
+                if (this.groups && e.model.index && e.detail.value) {
+                    this.groups[e.model.index].checked = e.detail.value;
+                }
+                this.fire('checked', this.groups);
+            },
+
+            removeClick: function (e) {
+                var newGroup = [];
+                for (var i = 0; i < this.groups.length; i++) {
+                    if (!this.groups[i].checked || i == 0) {
+                        newGroup.push(this.groups[i]);
+                    }
+                }
+                this.set('groups', newGroup);
+            }
+        });
+    </script>
+</dom-module>
+

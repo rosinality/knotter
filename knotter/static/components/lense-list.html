@@ -1,0 +1,104 @@
+<link rel="import" href="../bower_components/polymer/polymer.html">
+
+<link rel="import" href="lense-property.html">
+
+<dom-module id="lense-list">
+    <style>
+        ul {
+            list-style: none;
+            margin: 0;
+            padding: 0;
+        }
+    </style>
+
+    <template>
+        <template is="dom-repeat" items="[[lenses]]">
+            <lense-item nth="[[item.no]]" add-button="[[item.add]]" remove-button="[[item.remove]]"
+                lense-name="{{item.lenseProperty.type}}"
+                lense-min="[[item.lenseMin]]" lense-max="[[item.lenseMax]]"
+                lense-property="{{item.lenseProperty}}" interval-size="[[item.intervalSize]]"
+                cover="{{item.cover}}"
+                explained-variance="[[item.explainedVariance]]"
+
+                on-add-click="addClick"
+                on-remove-click="removeClick"
+                on-cover-changed="coverChanged"
+                on-lense-name-changed="lensePropertyChanged"
+                on-lense-property-changed="lensePropertyChanged">
+        </template>
+    </template>
+
+    <script>
+        Polymer({
+            is: 'lense-list',
+
+            properties: {
+                lenses: {
+                    type: Array,
+                    value: [],
+                    notify: true
+                }
+            },
+
+            ready: function () {
+                this.lenseTemplate = function () {
+                    return {
+                        no: 1,
+                        add: true,
+                        remove: true,
+                        lenseType: 0,
+                        lenseMin: 0,
+                        lenseMax: 0,
+                        intervalSize: 0,
+                        explainedVariance: 0,
+                        cover: {no: 1, overlap: 0},
+                        lenseProperty: {type: 'Principal Component'}
+                    };
+                }
+
+                var newLense = this.lenseTemplate();
+                newLense.remove = false;
+
+                this.lenses = [newLense];
+            },
+
+            addClick: function (e) {
+                var newLense = this.lenseTemplate();
+                newLense.no = this.lenses.length + 1;
+                this.push('lenses', newLense);
+                this.set('lenses.' + (e.model.index) + '.add', false);
+                this.set('lenses.' + (e.model.index) + '.remove', false);
+                this.fire('lense-add', {lenses: this.lenses});
+            },
+
+            removeClick: function (e) {
+                //alert(e.model.index);
+                this.splice('lenses', e.model.index, 1);
+                this.lenses[e.model.index - 1].add = true;
+                this.set('lenses.' + (e.model.index - 1) + '.add', true);
+                if (e.model.index < 2) {
+                    this.set('lenses.' + (e.model.index - 1) + '.remove', false);
+                } else {
+                    this.set('lenses.' + (e.model.index - 1) + '.remove', true);
+                }
+                this.fire('lense-remove', {lenses: this.lenses});
+            },
+
+            lenseNameToNo: function (name) {
+                var map = {'Principal Component': 0,
+                    'Eccentricity': 1,
+                    'Multidimensional Scaling': 2,
+                    'Graph Laplacian': 3};
+                return map[name];
+            },
+            
+            coverChanged: function (e) {
+                this.fire('cover-change', {lenses: this.lenses});
+            },
+
+            lensePropertyChanged: function (e) {
+                this.fire('lense-property-change', {lenses: this.lenses});
+            }
+        });
+    </script>
+</dom-module>

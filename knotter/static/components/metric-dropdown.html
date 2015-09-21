@@ -1,0 +1,31 @@
+<link rel="import" href="../bower_components/polymer/polymer.html">
+
+<link rel="import" href="../bower_components/paper-dropdown-menu/paper-dropdown-menu.html">
+<link rel="import" href="../bower_components/paper-menu/paper-menu.html">
+<link rel="import" href="../bower_components/paper-item/paper-item.html">
+
+<dom-module id="metric-dropdown">
+    <template>
+        <paper-dropdown-menu label="Metric">
+            <paper-menu class="dropdown-content">
+                <paper-item>Euclidean L2</paper-item>
+                <paper-item>Minkowski L1</paper-item>
+                <paper-item>Chebyshev L∞</paper-item>
+                <paper-item>Standardized Euclidean</paper-item>
+                <paper-item>Cosine</paper-item>
+                <paper-item>Correlation</paper-item>
+                <paper-item>Hamming</paper-item>
+            </paper-menu>
+        </paper-dropdown-menu>
+    </template>
+
+    <script>
+        Polymer({
+            is: 'metric-dropdown',
+
+            properties: {
+            },
+        });
+    </script>
+</dom-module>
+

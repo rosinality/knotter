@@ -1,0 +1,15 @@
+<table>
+    <tr>
+    {% for group in groups %}
+        <th>Group {{ group }}</th>
+    {% endfor %}
+    </tr>
+    {% for row in rows %}
+        <tr>
+            {% for col in row %}
+                <td>{{ col }}</td>
+            {% endfor %}    
+        </tr>
+    {% endfor %}
+</table>
+

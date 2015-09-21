@@ -1,0 +1,183 @@
+<link rel="import" href="../bower_components/polymer/polymer.html">
+
+<link rel="import" href="../bower_components/paper-styles/paper-styles-classes.html">
+<link rel="import" href="../bower_components/paper-input/paper-input-container.html">
+<link rel="import" href="../bower_components/iron-input/iron-input.html">
+<link rel="import" href="../bower_components/paper-input/paper-input.html">
+<link rel="import" href="../bower_components/paper-dropdown-menu/paper-dropdown-menu.html">
+<link rel="import" href="../bower_components/paper-menu/paper-menu.html">
+<link rel="import" href="../bower_components/paper-item/paper-item.html">
+
+<dom-module id="lense-item">
+    <template>
+        <div>
+            <!--<label>
+                <span>[[nthLabel]]</span>
+                <select value="{{lenseType::change}}">
+                    <option value="0">Principal Component</option>
+                    <option value="1">Eccentricity</option>
+                    <option value="2">Multidimensional Scaling</option>
+                    <option value="3">Graph Laplacian</option>
+                </select>
+            </label>-->
+            <paper-dropdown-menu label="[[nthLabel]]" selected-item-label="{{lenseName}}">
+                <paper-menu class="dropdown-content" selected="{{lenseType}}">
+                    <paper-item>Principal Component</paper-item>
+                    <paper-item>Linfty Centering</paper-item>
+                    <paper-item>Gaussian Density</paper-item>
+                    <paper-item>Simple Projection</paper-item>
+                </paper-menu>
+            </paper-dropdown-menu>
+
+            <paper-icon-button icon="add" alt="add"
+                title="add" hidden=[[!addButton]] on-click="addClick"></paper-icon-button>
+            <paper-icon-button icon="remove" alt="remove"
+                title="remove" hidden=[[!removeButton]] on-click="removeClick"></paper-icon-button>
+            <div>
+                <p hidden$="[[showOption(lenseType, 2)]]">
+                    <paper-input-container inline always-float-label>
+                        <label>Epsilon</label>
+                        <input is="iron-input" class="paper-input-input" size="4"
+                        value="{{lenseProperty.epsilon::change}}">
+                    </paper-input-container>
+                </p>
+                <p hidden$="[[showOption(lenseType, 3)]]">
+                    <paper-input-container inline always-float-label>
+                        <label>Variable</label>
+                        <input is="iron-input" class="paper-input-input" size="4"
+                        value="{{lenseProperty.variable::change}}">
+                    </paper-input-container>
+                </p>
+                <paper-input-container inline always-float-label>
+                    <label>No of Cover</label>
+                    <input is="iron-input" class="paper-input-input" size="4"
+                    value="{{cover.no::change}}">
+                </paper-input-container>
+                <paper-input-container inline always-float-label>
+                    <label>% Overlap</label>
+                    <input is="iron-input" class="paper-input-input" size="4"
+                    value="{{cover.overlap::change}}">
+                </paper-input-container>
+                <p class="paper-font-caption">Min: <span>[[fixed(lenseMin)]]</span>
+                    Max: <span>[[fixed(lenseMax)]]</span>
+                    Interval Size: <span>[[fixed(intervalSize)]]</span></p>
+                <p class="paper-font-caption" hidden$="[[showOption(lenseType, 0)]]">
+                    Explained Variance: <span>[[fixed(explainedVariance)]]</span>%
+                </p>
+            </div>
+        </div>
+    </template>
+
+    <script>
+        Polymer({
+            is: 'lense-item',
+
+            properties: {
+                nth: {
+                    type: Number,
+                    value: 1
+                },
+
+                nthLabel: {
+                    type: String,
+                    computed: 'makeLabel(nth)'
+                },
+
+                lenseMin: {
+                    type: Number,
+                    value: 0
+                },
+
+                lenseType: {
+                    type: Number,
+                    value: 0
+                },
+
+                lenseMax: {
+                    type: Number,
+                    value: 0
+                },
+
+                lenseName: {
+                    type: String,
+                    value: 'Principal Component',
+                    notify: true
+                },
+
+                cover: {
+                    type: Object,
+                    value: {no: 1, overlap: 0},
+                    notify: true
+                },
+
+                lenseProperty: {
+                    type: Object,
+                    value: {epsilon: 1, variable: ''},
+                    notify: true
+                },
+
+                addButton: {
+                    type: Boolean,
+                    value: false
+                },
+
+                removeButton: {
+                    type: Boolean,
+                    value: false
+                },
+
+                explainedVariance: {
+                    type: Number,
+                    value: 0
+                }
+            },
+
+            addClick: function () {
+                this.fire('add-click');
+            },
+
+            removeClick: function () {
+                this.fire('remove-click');
+            },
+
+            fixed: function (value) {
+                return value.toFixed(3);
+            },
+
+            getLenseNo: function (name) {
+                var map = {'Principal Component': 0,
+                    'Eccentricity': 1,
+                    'Multidimensional Scaling': 2,
+                    'Graph Laplacian': 3};
+                return map[name];
+            },
+
+            showOption: function (selector, index) {
+                if (selector == index) {
+                    return false;
+                }
+
+                return true;
+            },
+
+            lenseNoToName: function (no) {
+                var map = ['Principal Component', 'Eccentricity',
+                'Multidimensional Scaling', 'Graph Laplacian'];
+
+                return map[no];
+            },
+
+            makeLabel: function (nth) {
+                if (nth == 1) {
+                    return '1st Lense';
+                } else if (nth == 2) {
+                    return '2nd Lense';
+                } else if (nth == 3){
+                    return '3rd Lense';
+                } else {
+                    return nth + 'th Lense';
+                }
+            },
+        });
+    </script>
+</dom-module>

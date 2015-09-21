@@ -1,0 +1,276 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="utf-8">
+
+        <script src="bower_components/webcomponentsjs/webcomponents-lite.min.js"></script>
+
+        <script src="js/sigma.js/sigma.core.js"></script>
+        <script src="js/sigma.js/conrad.js"></script>
+        <script src="js/sigma.js/utils/sigma.utils.js"></script>
+        <script src="js/sigma.js/utils/sigma.polyfills.js"></script>
+        <script src="js/sigma.js/sigma.settings.js"></script>
+        <script src="js/sigma.js/classes/sigma.classes.dispatcher.js"></script>
+        <script src="js/sigma.js/classes/sigma.classes.configurable.js"></script>
+        <script src="js/sigma.js/classes/sigma.classes.graph.js"></script>
+        <script src="js/sigma.js/classes/sigma.classes.camera.js"></script>
+        <script src="js/sigma.js/classes/sigma.classes.quad.js"></script>
+        <script src="js/sigma.js/classes/sigma.classes.edgequad.js"></script>
+        <script src="js/sigma.js/captors/sigma.captors.mouse.js"></script>
+        <script src="js/sigma.js/captors/sigma.captors.touch.js"></script>
+        <script src="js/sigma.js/renderers/sigma.renderers.canvas.js"></script>
+        <script src="js/sigma.js/renderers/sigma.renderers.webgl.js"></script>
+        <script src="js/sigma.js/renderers/sigma.renderers.svg.js"></script>
+        <script src="js/sigma.js/renderers/sigma.renderers.def.js"></script>
+        <script src="js/sigma.js/renderers/webgl/sigma.webgl.nodes.def.js"></script>
+        <script src="js/sigma.js/renderers/webgl/sigma.webgl.nodes.fast.js"></script>
+        <script src="js/sigma.js/renderers/webgl/sigma.webgl.edges.def.js"></script>
+        <script src="js/sigma.js/renderers/webgl/sigma.webgl.edges.fast.js"></script>
+        <script src="js/sigma.js/renderers/webgl/sigma.webgl.edges.arrow.js"></script>
+        <script src="js/sigma.js/renderers/canvas/sigma.canvas.labels.def.js"></script>
+        <script src="js/sigma.js/renderers/canvas/sigma.canvas.hovers.def.js"></script>
+        <script src="js/sigma.js/renderers/canvas/sigma.canvas.nodes.def.js"></script>
+        <script src="js/sigma.js/renderers/canvas/sigma.canvas.edges.def.js"></script>
+        <script src="js/sigma.js/renderers/canvas/sigma.canvas.edges.curve.js"></script>
+        <script src="js/sigma.js/renderers/canvas/sigma.canvas.edges.arrow.js"></script>
+        <script src="js/sigma.js/renderers/canvas/sigma.canvas.edges.curvedArrow.js"></script>
+        <script src="js/sigma.js/renderers/canvas/sigma.canvas.edgehovers.def.js"></script>
+        <script src="js/sigma.js/renderers/canvas/sigma.canvas.edgehovers.curve.js"></script>
+        <script src="js/sigma.js/renderers/canvas/sigma.canvas.edgehovers.arrow.js"></script>
+        <script src="js/sigma.js/renderers/canvas/sigma.canvas.edgehovers.curvedArrow.js"></script>
+        <script src="js/sigma.js/renderers/canvas/sigma.canvas.extremities.def.js"></script>
+        <script src="js/sigma.js/renderers/svg/sigma.svg.utils.js"></script>
+        <script src="js/sigma.js/renderers/svg/sigma.svg.nodes.def.js"></script>
+        <script src="js/sigma.js/renderers/svg/sigma.svg.edges.def.js"></script>
+        <script src="js/sigma.js/renderers/svg/sigma.svg.edges.curve.js"></script>
+        <script src="js/sigma.js/renderers/svg/sigma.svg.labels.def.js"></script>
+        <script src="js/sigma.js/renderers/svg/sigma.svg.hovers.def.js"></script>
+        <script src="js/sigma.js/middlewares/sigma.middlewares.rescale.js"></script>
+        <script src="js/sigma.js/middlewares/sigma.middlewares.copy.js"></script>
+        <script src="js/sigma.js/misc/sigma.misc.animation.js"></script>
+        <script src="js/sigma.js/misc/sigma.misc.bindEvents.js"></script>
+        <script src="js/sigma.js/misc/sigma.misc.bindDOMEvents.js"></script>
+        <script src="js/sigma.js/misc/sigma.misc.drawHovers.js"></script>
+        
+        <script src="js/sigma.plugins.nodesSelection.js"></script>
+        <script src="js/sigma.js/plugins/sigma.layout.forceAtlas2/worker.js"></script>
+        <script src="js/sigma.js/plugins/sigma.layout.forceAtlas2/supervisor.js"></script>
+
+        <link rel="stylesheet" href="css/main.css">
+
+        <link rel="import" href="bower_components/paper-styles/paper-styles.html">
+        <link rel="import" href="bower_components/paper-drawer-panel/paper-drawer-panel.html">
+        <link rel="import" href="bower_components/paper-button/paper-button.html">
+        <link rel="import" href="bower_components/iron-input/iron-input.html">
+        <link rel="import" href="bower_components/iron-icons/iron-icons.html">
+        <link rel="import" href="bower_components/iron-icons/image-icons.html">
+        <link rel="import" href="bower_components/paper-icon-button/paper-icon-button.html">
+        <link rel="import" href="bower_components/iron-selector/iron-selector.html">
+        <link rel="import" href="bower_components/paper-input/paper-input.html">
+        <link rel="import" href="bower_components/paper-input/paper-input-container.html">
+        <link rel="import" href="bower_components/paper-checkbox/paper-checkbox.html">
+        <link rel="import" href="bower_components/paper-icon-button/paper-icon-button.html">
+        <link rel="import" href="bower_components/paper-item/paper-item.html">
+        <link rel="import" href="bower_components/paper-material/paper-material.html">
+        <link rel="import" href="bower_components/paper-dropdown-menu/paper-dropdown-menu.html">
+        <link rel="import" href="bower_components/paper-toast/paper-toast.html">
+        <link rel="import" href="bower_components/paper-menu/paper-menu.html">
+        <link rel="import" href="bower_components/paper-styles/paper-styles-classes.html">
+        <link rel="import" href="bower_components/paper-dialog/paper-dialog.html">
+        <link rel="import" href="bower_components/paper-dialog-scrollable/paper-dialog-scrollable.html">
+        <link rel="import" href="bower_components/google-map/google-map.html">
+
+        <link rel="import" href="components/lense-list.html">
+        <link rel="import" href="components/compare-list.html">
+        <link rel="import" href="components/metric-dropdown.html">
+
+        <title>Radical Topologist</title>
+    </head>
+    <body>
+        <template is="dom-bind" id="app">
+            <paper-drawer-panel drawer id="drawer">
+                <div id="left-drawer" drawer>
+                    <div id="analysis">
+                        <h4 class="inline-heading">Data Loading</h4>
+                        <paper-icon-button icon="image:color-lens"
+                            alt="Post Graph Coloring" title="Post Graph Coloring"
+                            on-click="postColoring"></paper-icon-button>
+                        <paper-icon-button icon="assessment"
+                            alt="Post Group Comparing" title="Post Group Comparing"
+                            on-click="postAnalysis"></paper-icon-button>
+                        <paper-icon-button icon="search"
+                            alt="Node Inspector" title="Node Inspector"
+                            on-click="nodeInspector"></paper-icon-button>
+                        <paper-icon-button icon="list" alt="Analysis Result" title="Analysis Result"
+                            on-click="analysisResult"></paper-icon-button>
+                        <div id="dataset">
+                            <paper-button class="btn-file">
+                                Browse
+                                <input type="file" id="datafile" file-change="onUploadDataset">
+                            </paper-button>
+                            <div id="fileName">[[datasetFile]]</div>
+                        </div>
+                        <div id="variable-view">
+                            <iron-selector id="variable-selector" multi
+                                selected-values="{{selectedVariables}}"
+                                on-selected-values-changed="variableSelected"
+                                on-selected="variableSelected">
+                                <template is="dom-repeat" items="{{variables}}">
+                                    <div>{{item}}</div>
+                                </template>
+                            </iron-selector>
+                        </div>
+
+                        <paper-button id="variable-all"
+                            on-click="selectAllVariable">Select All</paper-button>
+                        <paper-button id="variable-deall"
+                            on-click="deselectAllVariable">Deselect All</paper-button>
+
+                        <h4>Algorithm</h4>
+                        <div>
+                            <paper-dropdown-menu label="Algorithm">
+                                <paper-menu class="dropdown-content">
+                                    <paper-item>Mapper</paper-item>
+                                    <paper-item>Graph Modularity</paper-item>
+                                </paper-menu>
+                            </paper-dropdown-menu>
+                        </div>
+
+                        <h4>Lense</h4>
+                        <lense-list lenses="{{lenses}}"
+                            on-cover-no-change="coverChange"
+                            on-cover-change="coverChange"
+                            on-lense-type-change="lenseChange"
+                            on-lense-property-change="lenseChange"
+                            on-lense-add="lenseChange"
+                            on-lense-remove="lenseChange"></lense-list>
+
+                        <h4>Clustering</h4>
+                        <div>
+                            <!--<paper-dropdown-menu label="Metric">
+                                <paper-menu class="dropdown-content">
+                                    <paper-item>Euclidean L2</paper-item>
+                                    <paper-item>Minkowski L1</paper-item>
+                                    <paper-item>Chebychev L∞</paper-item>
+                                </paper-menu>
+                            </paper-dropdown-menu>-->
+                            <metric-dropdown></metric-dropdown>
+                            <paper-input-container inline always-float-label>
+                                <label>Bins</label>
+                                <input is="iron-input" class="paper-input-input" size="4"
+                                value="{{clusteringHistogramBins::change}}" value="0">
+                            </paper-input-container>
+                        </div>
+                        <div>
+                            <paper-button>Stop</paper-button>
+                            <paper-button on-click="runAnalysis">Analyze</paper-button>
+                        </div>
+                        <h4>Layout</h4>
+                        <div>
+                            <paper-input-container inline always-float-label>
+                                <label>Scale</label>
+                                <input is="iron-input" class="paper-input-input"
+                                    size="4" value="{{forceScale::change}}">
+                            </paper-input-container>
+                            <paper-input-container inline always-float-label>
+                                <label>Gravity</label>
+                                <input is="iron-input" class="paper-input-input"
+                                    size="4" value="{{forceGravity::change}}">
+                            </paper-input-container>
+                            <div>
+                                <paper-button on-click="graphShuffle">Shuffle</paper-button>
+                                <paper-button on-click="graphLayout"
+                                    active="{{layoutActive}}" toggles>Layout</paper-button>
+                            </div>
+                        </div>
+                        
+                        <!--<div id="status"></div>-->
+
+                        <paper-toast id="toast-general" text="[[toastMessage]]"></paper-toast>
+                        <paper-toast id="toast-connection-error" text="Connection Error.">
+                            <span role="button" tabindex="0"
+                                style="color: #eeff41; margin: 10px"
+                                onclick="console.log('RETRY')">Retry</span>
+                        </paper-toast>
+                    </div>
+                </div>
+                <div main>
+                    <paper-dialog id="post-analysis" no-cancel-on-outside-click="true">
+                        <h4>Comparing</h4>
+                        <div>
+                            <compare-list groups="{{groups}}" on-group-selected="groupSelected"
+                                on-checked="groupChecked"></compare-list>
+                            <paper-button on-click="compare"
+                                class="compare-tool">Compare</paper-button>
+                            <paper-input label="Labeling" value="{{nodeLabeling}}"></paper-input>
+                            <paper-button class="compare-tool"
+                                on-click="showNodeContent">Show Nodes</paper-button>
+                            <paper-button class="compare-tool">Run Logistic Regression</paper-button>
+                            <paper-button class="compare-tool"
+                                on-click="geographer">Geographic Overlay</paper-button>
+                        </div>
+                    </paper-dialog>
+                    <paper-dialog id="geographer">
+                        <h4>Geographic Overlay</h4>
+                        <paper-input label="Latitude" value="{{latitudeVar}}"></paper-input>
+                        <paper-input label="Longitude" value="{{longitudeVar}}"></paper-input>
+                        <paper-button on-click="runGeographer">Draw Geography</paper-button>
+                    </paper-dialog>
+                    <paper-dialog id="node-inspector" no-cancel-on-outside-click="true">
+                        <h4>Node Inspector</h4>
+                        <p>Number of points: <span>0</span></p>
+                        <p>Lense 1: <span>0</span></p>
+                        <paper-input label="Labeling" value="{{nodeLabeling}}"></paper-input>
+                        <paper-input label="Label of Point" value="{{findPointLabel}}"></paper-input>
+                        <paper-button on-click="findPoint">Find Point</paper-button>
+                        <h5>List of points</h5>
+                        <paper-dialog-scrollable>
+                            <ul>
+                            </ul>
+                        </paper-dialog-scrollable>
+                    </paper-dialog>
+                    <paper-dialog id="analysis-result">
+                        <h4>Analysis Result</h4>
+                        <paper-dialog-scrollable>
+                            <div id="analysis-report">
+                            </div>
+                        </paper-dialog-scrollable>
+                    </paper-dialog>
+                    <paper-dialog id="post-coloring" class="palette"
+                        no-cancel-on-outside-click="true">
+                        <h4>Coloring</h4>
+                        <div id="coloring-variable">
+                            <iron-selector id="variable-selector"
+                                attr-for-selected="name"
+                                selected="{{coloringVariable}}"
+                                on-selected="coloringChange">
+                                <template is="dom-repeat" items="{{coloringSummary}}">
+                                    <div name="[[item.0]]">
+                                        <h4>[[item.0]]</h4>
+                                        <p class="paper-font-caption">
+                                            Min: <span>[[fixed(item.1)]]</span>
+                                            Max: <span>[[fixed(item.2)]]</span>
+                                            <br/>
+                                            Mean: <span>[[fixed(item.3)]]</span>
+                                            St.Dev: <span>[[fixed(item.4)]]</span>
+                                        </p>
+                                    </div>
+                                </template>
+                            </iron-selector>
+                        </div>
+                    </paper-dialog>
+                    <div id="main-graph"></div>
+                    <div id="data-panel"><svg id="histogram"></svg></div>
+                </div>
+            </paper-drawer-panel>
+        </template>
+        <script src="bower_components/d3/d3.js"></script>
+        <script src="bower_components/topojson/topojson.js"></script>
+        <script src="js/cubehelix.min.js"></script>
+        <script src="js/d3plot.js"></script>
+        <script src="js/graph.js"></script>
+        <script src="js/geography.js"></script>
+        <script src="js/utility.js"></script>
+        <script src="js/main.js"></script>
+    </body>
+</html>

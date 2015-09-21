@@ -1,0 +1,136 @@
+<link rel="import" href="../bower_components/polymer/polymer.html">
+
+<link rel="import" href="../bower_components/iron-icon/iron-icon.html">
+<link rel="import" href="../bower_components/iron-icons/iron-icons.html">
+<link rel="import" href="../bower_components/paper-checkbox/paper-checkbox.html">
+<link rel="import" href="../bower_components/paper-item/paper-item.html">
+<link rel="import" href="../bower_components/paper-item/paper-item-body.html">
+<link rel="import" href="../bower_components/paper-item/paper-icon-item.html">
+
+<link rel="import" href="../bower_components/paper-styles/paper-styles.html">
+<link rel="import" href="../bower_components/paper-styles/paper-styles-classes.html">
+
+<dom-module id="compare-item">
+    <style>
+        div[item-icon] > ::content {
+            display: inline-block;
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            overflow: hidden;
+            background: #ccc;
+        }
+
+        .color-icon {
+            background-color: var(--group-icon-color);
+        }
+
+        .selected {
+            background: #ddd;
+        }
+
+        .black > ::content {
+            background-color: #000;
+        }
+
+        .blue > ::content  {
+            background-color: var(--paper-light-blue-300);
+        }
+        .red > ::content  {
+            background-color: var(--paper-red-300);
+        }
+        .orange > ::content  {
+            background-color: var(--paper-amber-300);
+        }
+        .green > ::content  {
+            background-color: var(--paper-green-300);
+        }
+    </style>
+    <template>
+        <paper-icon-item class$="[[selectedClass]]">
+            <div id="colorIcon" item-icon></div>
+            <div class="flex">[[makeLabel(no)]]
+                <p class="paper-font-caption">Nodes: <span>[[nodes]]</span>
+                    Points: <span>[[points]]</span></p></div>
+            <paper-checkbox checked="{{checked}}"></paper-checkbox>
+        </paper-icon-item>
+    </template>
+
+    <script>
+        Polymer({
+            is: 'compare-item',
+
+            properties: {
+                color: {
+                    type: String,
+                    value: 'blue',
+                    computed: 'noToColor(no)',
+                    notify: true
+                },
+
+                nodes: {
+                    type: Number,
+                    value: 0
+                },
+
+                points: {
+                    type: Number,
+                    value: 0
+                },
+
+                checked: {
+                    type: Boolean,
+                    value: false,
+                    notify: true
+                },
+
+                no: {
+                    type: Number,
+                    value: 0
+                },
+
+                selected: {
+                    type: Boolean,
+                    value: false
+                },
+
+                selectedClass: {
+                    type: String,
+                    value: '',
+                    computed: 'selectedStyle(selected)'
+                }
+            },
+
+            noToColor: function (no) {
+                var colorMap = ['#000', '#ff1744', '#76ff03', '#00b0ff', '#ff9100', '#D500F9', '#FFEA00', '#F5F5F5'];
+                this.$.colorIcon.style.backgroundColor = colorMap[no];
+
+                return colorMap[no];
+                //return colorMap[no];
+            },
+
+            selectedStyle: function (flag) {
+                if (flag) {
+                    return 'selected';
+                } else {
+                    return '';
+                }
+            },
+
+            makeLabel: function (nth) {
+                if (nth == 0) {
+                    return 'All';
+                } else if (nth == 1) {
+                    return '1st Group';
+                } else if (nth == 2) {
+                    return '2nd Group';
+                } else if (nth == 3){
+                    return '3rd Group';
+                } else {
+                    return nth + 'th Group';
+                }
+            },
+        });
+    </script>
+</dom-module>
+

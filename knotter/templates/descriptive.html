@@ -1,0 +1,16 @@
+<table>
+    <tr>
+        <th>Variables</th>
+    {% for header in headers %}
+        <th>Group {{ header }}</th>
+    {% endfor %}
+    </tr>
+    {% for row in rows %}
+        <tr>
+            <td>{{ row[0] }}</td>
+            {% for col in row[1] %}
+                <td>{{ col|round(3) }}</td>
+            {% endfor %}    
+        </tr>
+    {% endfor %}
+</table>
