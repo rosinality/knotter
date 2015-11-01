@@ -1,7 +1,14 @@
 # Knotter
 Implementation of Mapper algorithm for Topological Data Analysis
 
-* server.py : Python server for running actual analysis process.
-* index.html : Web client for convenience of analysis.
+![Main Screen](docs/sample_subway.png)
 
-![Main Screen](docs/kgss.png)
+> G. Singh, F. Memoli, G. Carlsson (2007).  Topological Methods for the Analysis of High Dimensional Data Sets and 3D Object Recognition, Point Based Graphics 2007, Prague, September 2007.
+
+# Installation
+
+    pip install knotter
+
+# Run web interface
+
+    knotter
