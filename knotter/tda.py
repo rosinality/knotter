@@ -1,6 +1,5 @@
 import asyncio
 import threading
-from aiohttp import web
 import json
 import pandas as pd
 from io import StringIO
@@ -12,33 +11,55 @@ import scipy.spatial.distance as dist
 from scipy import stats
 import itertools
 import functools
+from sklearn import manifold
 
-#def overlapping_interval(minimum, maximum, N, overlap = .5):
-#    delta = overlap / 2
-#    interval = np.linspace(minimum, maximum, N)
-    
-    # pre = [1, 2, 3] - (overlap / 2)
-#    pre = interval - delta
-    
-    # post = [1, 2, 3] + (overlap / 2) + (M - m + 1) / N
-    # (M - m + 1) N = interval between 2 consecutive numbers.
-#    post = interval + delta + (maximum - minimum + 1) / N
-    
-#    return np.dstack((pre, post))[0]
-
-def overlapping_interval(minimum, maximum, N, overlap = .5):
+def uniform_cover(minimum, maximum, N, overlap=.5):
     interval = (maximum - minimum) / (N - (N - 1) * overlap)
     step = interval * (1 - overlap)
     intervals = []
     
-    for i in range(N):
-        interval_min = minimum + i * step
-        interval_max = interval_min + interval
-        intervals.append([interval_min, interval_max])
+    m = np.full(N, float(minimum))
+    m += step * np.arange(N)
+    M = m + interval
     
-    return np.vstack(intervals)
+    return np.dstack((m, M))[0]
 
-def pca(X, n_components = 2):
+def balanced_cover(points, N, overlap=.5):
+    sorted_points = np.sort(points)
+    length = sorted_points.shape[0]
+    interval = int(length / (N - (N - 1) * overlap))
+    step = int(interval * overlap)
+    m = np.empty(N)
+    M = np.empty(N)
+
+    for i in range(N):
+        start = i * (interval - step)
+        
+        # If this is last step in the loop, include all the rest points.
+        if i == N - 1:
+            subset = sorted_points[start:]
+        else:
+            subset = sorted_points[start:start + interval]
+            
+        m[i] = subset.min()
+        
+        # Get next point of the max point in the interval.
+        try:
+            next_point = sorted_points[start + interval]
+            
+        except:
+            next_point = 0.0
+
+        subset_max = subset.max()
+        
+        # Add difference between max and next element for
+        # include this point in the m <= points < M condition.
+        # See point_in_interval function.
+        M[i] = subset_max + (next_point - subset_max) / 2
+
+    return np.dstack((m, M))[0]
+
+def pca(X, n_components=2):
     centered = X - X.mean(axis=0)
 
     U, s, Vt = la.svd(centered, full_matrices = False)
@@ -51,12 +72,25 @@ def pca(X, n_components = 2):
     
     return U, s, Vt, s2
 
-def Linfty_centering(X, options):
-    return dist.squareform(dist.pdist(X)).max(axis=0)
+def nearest_neighbor(X, n_components=2):
+    T = sp.spatial.cKDTree(X)
+    d, i = T.query(X, n_components + 1)
 
-def pca_projection(X, n_axis = 2):
+    return d[:, 1:]
+
+def t_SNE(X, n_components=2):
+    return manifold.TSNE(n_components=n_components, init='pca').fit_transform(X)
+
+def spectral_embedding(X, n_components=2, n_neighbors=10):
+    return manifold.SpectralEmbedding(
+            n_components=n_components, n_neighbors=n_neighbors).fit_transform(X)
+
+def Linfty_centering(X, options, metric='euclidean'):
+    return dist.squareform(dist.pdist(X, metric=metric)).max(axis=0)
+
+def pca_projection(X, n_components=2):
     N = X.shape[0]
-    U, s, Vt, s2 = pca(X, n_axis)
+    U, s, Vt, s2 = pca(X, n_components)
     
     explained_variance = s2 / N
 
@@ -66,9 +100,9 @@ def pca_projection(X, n_axis = 2):
 def simple_axis_projection(X, axis = 0):
     return X[:, axis]
 
-def gaussian_density(X, options):
+def gaussian_density(X, options, metric='euclidean'):
     eps = float(options['epsilon'])
-    dist_mat = dist.squareform(dist.pdist(X))
+    dist_mat = dist.squareform(dist.pdist(X, metric=metric))
     
     return np.exp(-(dist_mat ** 2) / eps).sum(axis=0)
 
@@ -136,14 +170,14 @@ def index_to_points(X, index):
     # ex: [{1, 2, 3}, {2, 3, 4}, {4, 5}, {6, 7, 9}]
 #    return clusters
 
-def make_cluster(X, points):
+def make_cluster(X, points, metric='euclidean'):
     clusters = []
     
     for p in points:
         if p.shape[0] > 1:
             #clusters.append(hierarchy.linkage(index_to_points(X, p)))
             clusters.append(hierarchy.linkage(
-                sp.spatial.distance.pdist(index_to_points(X, p))))
+                sp.spatial.distance.pdist(index_to_points(X, p), metric=metric), metric=metric))
             
         elif p.shape[0] == 1:
             clusters.append(np.array([]))
@@ -176,7 +210,7 @@ def cutoff_threshold(threshold):
 
 def _cutoff_histogram(distance, max_distance, bins, nth):
     hist, edge = np.histogram(distance, bins)
-    zero, = np.nonzero(hist)
+    zero, = np.nonzero(hist[:-1])
     
     if zero.shape[0] != 0:
         return edge[zero[nth]]

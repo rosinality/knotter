@@ -84,7 +84,7 @@
         <link rel="import" href="components/compare-list.html">
         <link rel="import" href="components/metric-dropdown.html">
 
-        <title>Radical Topologist</title>
+        <title>Knotter</title>
     </head>
     <body>
         <template is="dom-bind" id="app">
@@ -154,7 +154,7 @@
                                     <paper-item>Chebychev L∞</paper-item>
                                 </paper-menu>
                             </paper-dropdown-menu>-->
-                            <metric-dropdown></metric-dropdown>
+                            <metric-dropdown metric="{{metric}}"></metric-dropdown>
                             <paper-input-container inline always-float-label>
                                 <label>Bins</label>
                                 <input is="iron-input" class="paper-input-input" size="4"

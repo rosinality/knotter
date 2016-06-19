@@ -51,6 +51,7 @@
         app.nodeLabeling = '';
         app.forceScale = 1;
         app.forceGravity = 1;
+        app.metric = 'Euclidean L2';
     };
 
     var receive = function (msg) {
@@ -197,7 +198,8 @@
 
         for (var i = 0; i < e.detail.lenses.length; i++) {
             covers.push({no: e.detail.lenses[i].cover.no,
-                overlap: e.detail.lenses[i].cover.overlap});
+                overlap: e.detail.lenses[i].cover.overlap,
+                balanced: e.detail.lenses[i].cover.balanced});
         }
         sendEvent('cover_change', {covers: covers});
     };
@@ -373,7 +375,8 @@
         var msg = {
             'type': 'analyze',
             'variables': selected,
-            'bins': app.clusteringHistogramBins
+            'bins': app.clusteringHistogramBins,
+            'metric': app.metric
         }
         ws.send(JSON.stringify(msg));
     };
@@ -395,7 +398,7 @@
                 var reader = new FileReader();
                 reader.onload = function (e) {
                     ws.send(JSON.stringify({'type': 'upload_data', 'content': e.target.result}));
-                    document.title = 'Radical Topologist - ' + app.datasetFile;
+                    document.title = 'Knotter - ' + app.datasetFile;
                 };
                 reader.readAsText(file);
             });

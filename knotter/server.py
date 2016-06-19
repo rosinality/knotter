@@ -23,7 +23,9 @@ class Analyzer:
         self.projection = None
         self.lense_map = {'Principal Component': pca_projection,
                 'Linfty Centering': Linfty_centering,
-                'Gaussian Density': gaussian_density}
+                'Gaussian Density': gaussian_density,
+                'Nearest Neighbor': nearest_neighbor,
+                't-SNE': t_SNE}
 
     def load_dataframe(self, data_string):
         data_io = StringIO(data_string)
@@ -61,25 +63,46 @@ class Analyzer:
 
 
     def lense_change(self, variables, lenses):
+        for dtype in self.df[variables].dtypes:
+            if dtype.kind not in 'biufc':
+                raise ValueError('Variable list contains non-numeric column')
+
         self.df_m = self.df[variables].dropna().as_matrix()
         self.lense_type = []
         explained_variance = None
 
+        oneshot_lense = ['Principal Component', 't-SNE', 'Nearest Neighbor']
+        oneshot_num = dict(zip(oneshot_lense, [0] * len(oneshot_lense)))
+
         pca_num = 0
+        t_sne_num = 0
         sp_var = []
         for lense in lenses:
-            if lense['lenseProperty']['type'] == 'Principal Component':
-                pca_num += 1
+            lense_type = lense['lenseProperty']['type']
 
-            elif lense['lenseProperty']['type'] == 'Simple Projection':
-                if 'variable' in lense['lenseProperty'] and lense['lenseProperty']['variable'].strip():
+            if lense_type in oneshot_lense:
+                oneshot_num[lense_type] += 1
+
+            elif lense_type == 'Simple Projection':
+                if 'variable' in lense['lenseProperty'] and \
+                        lense['lenseProperty']['variable'].strip():
                     sp_var.append(lense['lenseProperty']['variable'])
 
-            self.lense_type.append(lense['lenseProperty']['type'])
+            self.lense_type.append(lense_type)
 
-        if pca_num > 0:
-            pca_projection, explained_variance = self.lense_map[
-                    'Principal Component'](self.df_m, n_axis=pca_num)
+        oneshot_projection = {}
+        for k, v in oneshot_num.items():
+            if v < 1:
+                continue
+
+            if k == 'Principal Component':
+                proj, explained_variance = self.lense_map[k](
+                        self.df_m, n_components=v)
+
+            else:
+                proj = self.lense_map[k](self.df_m, n_components=v)
+
+            oneshot_projection[k] = proj
 
         if len(sp_var) > 0:
             variables2 = variables.copy()
@@ -94,15 +117,18 @@ class Analyzer:
 
         projections = []
 
-        pca_nth = 0
+        oneshot_nth = dict(zip(oneshot_lense, [0] * len(oneshot_lense)))
         import traceback
         try:
             for lense in lenses:
-                if lense['lenseProperty']['type'] == 'Principal Component':
-                    projections.append(pca_projection[:, pca_nth])
-                    pca_nth += 1
+                lense_type = lense['lenseProperty']['type']
 
-                elif lense['lenseProperty']['type'] == 'Simple Projection':
+                if lense_type in oneshot_lense:
+                    projections.append(oneshot_projection[lense_type] \
+                            [:, oneshot_nth[lense_type]])
+                    oneshot_nth[lense_type] += 1
+
+                elif lense_type == 'Simple Projection':
                     if not 'variable' in lense['lenseProperty']:
                         projections.append(np.zeros(self.df_m.shape[0]))
                         continue
@@ -114,8 +140,8 @@ class Analyzer:
                     projections.append(df2[var_name].as_matrix())
 
                 else:
-                    projections.append(self.lense_map[
-                        lense['lenseProperty']['type']](self.df_m, lense['lenseProperty']))
+                    projections.append(self.lense_map[lense_type] \
+                            (self.df_m, lense['lenseProperty']))
 
         except:
             print('Wrong Lense Type')
@@ -131,7 +157,7 @@ class Analyzer:
         self.covers = []
         for no, lense in enumerate(lenses):
             self.covers.append(self._cover_change(no, int(lense['cover']['no']),
-                float(lense['cover']['overlap'])))
+                float(lense['cover']['overlap']), lense['cover']['balanced']))
             
     def cover_change(self, covers):
         if isinstance(self.projection, type(None)):
@@ -142,12 +168,16 @@ class Analyzer:
         self.covers = []
         for no, cover in enumerate(covers):
             self.covers.append(self._cover_change(no, int(cover['no']),
-                float(cover['overlap'])))
+                float(cover['overlap']), cover['balanced']))
 
-    def _cover_change(self, no, cover_no, overlap):
-        return overlapping_interval(self.projection[:, no].min(),
-                self.projection[:, no].max(),
-                cover_no, overlap)
+    def _cover_change(self, no, cover_no, overlap, balanced):
+        if balanced:
+            return balanced_cover(self.projection[:, no], cover_no, overlap)
+
+        else:
+            return uniform_cover(self.projection[:, no].min(),
+                    self.projection[:, no].max(),
+                    cover_no, overlap)
 
     def lense_summary(self):        
         result = []
@@ -276,9 +306,9 @@ class Analyzer:
 
         return headers, zip(point_group[no].T.index, a_table)
 
-    def analyze(self, bins):
+    def analyze(self, bins, metric):
         points = point_in_intervals(self.projection, self.covers)
-        cluster = make_cluster(self.df_m, points)
+        cluster = make_cluster(self.df_m, points, metric=metric)
         self.cluster = cut_cluster(cluster, cut_points(points),
                         threshold=cutoff_histogram(bins=bins, nth=-1))
         links = find_nerves(self.cluster)
@@ -384,10 +414,14 @@ class Server:
                     .as_matrix().tolist())})
 
     def lense_change(self, data):
-        self.analyzer.lense_change(data['variables'], data['lenses'])
-        self.response('lense_summary',
+        try:
+            self.analyzer.lense_change(data['variables'], data['lenses'])
+            self.response('lense_summary',
                 {'content': self.analyzer.lense_summary()})
 
+        except:
+            pass
+        
     def cover_change(self, data):
         self.analyzer.cover_change(data['covers'])
         self.response('lense_summary',
@@ -416,7 +450,8 @@ class Server:
                         'max': values.max().tolist()})
 
     def analyze(self, data):
-        cluster, links, lense, mean_lense = self.analyzer.analyze(int(data['bins']))
+        metric_label = {'Euclidean L2': 'euclidean', 'Minkowski L1': 'minkowski', 'Standardized Euclidean': 'seuclidean'}
+        cluster, links, lense, mean_lense = self.analyzer.analyze(int(data['bins']), metric=metric_label[data['metric']])
         node_size = cluster_size(cluster)
         node_size /= node_size.max()
 
@@ -511,3 +546,6 @@ def run():
     #threading.Thread(target = stop_loop).start()
     loop.run_forever()
     loop.close()
+
+if __name__ == '__main__':
+    run()

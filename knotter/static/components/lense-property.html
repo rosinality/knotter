@@ -7,6 +7,7 @@
 <link rel="import" href="../bower_components/paper-dropdown-menu/paper-dropdown-menu.html">
 <link rel="import" href="../bower_components/paper-menu/paper-menu.html">
 <link rel="import" href="../bower_components/paper-item/paper-item.html">
+<link rel="import" href="../bower_components/paper-checkbox/paper-checkbox.html">
 
 <dom-module id="lense-item">
     <template>
@@ -23,8 +24,12 @@
             <paper-dropdown-menu label="[[nthLabel]]" selected-item-label="{{lenseName}}">
                 <paper-menu class="dropdown-content" selected="{{lenseType}}">
                     <paper-item>Principal Component</paper-item>
+                    <paper-item>Metric SVD</paper-item>
                     <paper-item>Linfty Centering</paper-item>
                     <paper-item>Gaussian Density</paper-item>
+                    <paper-item>Spectral Embedding</paper-item>
+                    <paper-item>t-SNE</paper-item>
+                    <paper-item>Nearest Neighbor</paper-item>
                     <paper-item>Simple Projection</paper-item>
                 </paper-menu>
             </paper-dropdown-menu>
@@ -58,6 +63,7 @@
                     <input is="iron-input" class="paper-input-input" size="4"
                     value="{{cover.overlap::change}}">
                 </paper-input-container>
+                Balanced? <paper-checkbox checked="{{cover.balanced}}"></paper-checkbox>
                 <p class="paper-font-caption">Min: <span>[[fixed(lenseMin)]]</span>
                     Max: <span>[[fixed(lenseMax)]]</span>
                     Interval Size: <span>[[fixed(intervalSize)]]</span></p>
@@ -106,7 +112,7 @@
 
                 cover: {
                     type: Object,
-                    value: {no: 1, overlap: 0},
+                    value: {no: 1, overlap: 0, balanced: false},
                     notify: true
                 },
 
