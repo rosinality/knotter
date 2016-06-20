@@ -10,7 +10,7 @@ with open(path.join(here, 'DESCRIPTION.rst'), encoding='utf-8') as f:
 setup(
     name='knotter',
     
-    version='0.1.0',
+    version='0.2.2',
     
     description='Implementation of Mapper algorithm for Topological Data Analysis',
     long_description=long_description,
@@ -35,7 +35,8 @@ setup(
     keywords='Topological Data Analysis,Visualization',
 
     packages=find_packages(),
-
+    include_package_data=True,
+    
     install_requires=[
         'aiohttp >= 0.16.5',
         'pandas >= 0.16.2',
