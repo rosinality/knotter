@@ -177,7 +177,9 @@ def make_cluster(X, points, metric='euclidean'):
         if p.shape[0] > 1:
             #clusters.append(hierarchy.linkage(index_to_points(X, p)))
             clusters.append(hierarchy.linkage(
-                sp.spatial.distance.pdist(index_to_points(X, p), metric=metric), metric=metric))
+                sp.spatial.distance.pdist(index_to_points(X, p),
+                    metric=metric),
+                metric=metric))
             
         elif p.shape[0] == 1:
             clusters.append(np.array([]))

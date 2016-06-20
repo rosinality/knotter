@@ -450,8 +450,15 @@ class Server:
                         'max': values.max().tolist()})
 
     def analyze(self, data):
-        metric_label = {'Euclidean L2': 'euclidean', 'Minkowski L1': 'minkowski', 'Standardized Euclidean': 'seuclidean'}
-        cluster, links, lense, mean_lense = self.analyzer.analyze(int(data['bins']), metric=metric_label[data['metric']])
+        metric_label = {'Euclidean L2': 'euclidean',
+                'Minkowski L1': 'minkowski',
+                'Chebyshev L∞': 'chebyshev',
+                'Cosine': 'cosine',
+                'Correlation': 'correlation',
+                'Hamming': 'hamming',
+                'Standardized Euclidean': 'seuclidean'}
+        cluster, links, lense, mean_lense = self.analyzer.analyze(
+                int(data['bins']), metric=metric_label[data['metric']])
         node_size = cluster_size(cluster)
         node_size /= node_size.max()
 
