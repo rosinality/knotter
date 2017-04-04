@@ -6,6 +6,7 @@
 <link rel="import" href="../bower_components/paper-input/paper-input.html">
 <link rel="import" href="../bower_components/paper-dropdown-menu/paper-dropdown-menu.html">
 <link rel="import" href="../bower_components/paper-menu/paper-menu.html">
+<link rel="import" href="../bower_components/paper-listbox/paper-listbox.html">
 <link rel="import" href="../bower_components/paper-item/paper-item.html">
 <link rel="import" href="../bower_components/paper-checkbox/paper-checkbox.html">
 
@@ -21,7 +22,7 @@
                     <option value="3">Graph Laplacian</option>
                 </select>
             </label>-->
-            <paper-dropdown-menu label="[[nthLabel]]" selected-item-label="{{lenseName}}">
+            <paper-dropdown-menu label="[[nthLabel]]" selected-item-label="{{lenseName}}" no-animations="True">
                 <paper-menu class="dropdown-content" selected="{{lenseType}}">
                     <paper-item>Principal Component</paper-item>
                     <paper-item>Metric SVD</paper-item>

@@ -208,7 +208,7 @@ def _cutoff_threshold(distance, max_distance, threshold):
     return max_distance * threshold
     
 def cutoff_threshold(threshold):
-    return functools.partial(_cutoff_threshold, threshold = threshold)
+    return functools.partial(_cutoff_threshold, threshold=threshold)
 
 def _cutoff_histogram(distance, max_distance, bins, nth):
     hist, edge = np.histogram(distance, bins)
@@ -228,9 +228,9 @@ def _cutoff_histogram_max_gap(distance, max_distance, bins):
     return 0
 
 def cutoff_histogram_max_gap(bins):
-    return functools.partial(_cutoff_histogram, bins = bins)
+    return functools.partial(_cutoff_histogram, bins=bins)
 
-def cut_cluster(clusters, points, threshold = .1):
+def cut_cluster(clusters, points, threshold=.1):
     distances = cluster_distance(clusters)
     #cutoff = np.percentile(distances, threshold * 100)
     #cutoff = threshold
