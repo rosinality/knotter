@@ -12,3 +12,5 @@ Implementation of Mapper algorithm for Topological Data Analysis
 ## Run web interface
 
     knotter
+
+Basic usage is presented in the [Tutorial](docs/tutorial.md)
