@@ -473,7 +473,7 @@ class Server:
     @asyncio.coroutine
     def handler(self, request):
         self.ws = web.WebSocketResponse()
-        self.ws.start(request)
+        yield from self.ws.prepare(request)
 
         while True:
             msg = yield from self.ws.receive()
