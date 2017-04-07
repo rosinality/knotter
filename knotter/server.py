@@ -1,5 +1,7 @@
 import asyncio
 import threading
+import traceback
+import aiohttp
 from aiohttp import web
 import json
 import pandas as pd
@@ -470,18 +472,13 @@ class Server:
                     'meanLense': mean_lense,
                     'summary': self.analyzer.variable_summary()})
 
-    @asyncio.coroutine
-    def handler(self, request):
+    async def handler(self, request):
         self.ws = web.WebSocketResponse()
-        yield from self.ws.prepare(request)
+        await self.ws.prepare(request)
 
-        while True:
-            msg = yield from self.ws.receive()
-
-            if msg.tp == web.MsgType.text:
+        async for msg in self.ws:
+            if msg.type == aiohttp.WSMsgType.TEXT:
                 data = json.loads(msg.data)
-
-                import traceback
 
                 try:
                     self.event_map[data['type']](data)
@@ -495,11 +492,11 @@ class Server:
                     
                 #print('Got message: {}'.format(data['type']))
 
-            elif msg.tp == web.MsgType.binary:
+            elif msg.type == aiohttp.WSMsgType.BINARY:
                 print('Got Binary')
             
-            elif msg.tp == web.MsgType.close:
-                break
+            elif msg.type == aiohttp.WSMsgType.CLOSE:
+                await ws.close()
 
         return self.ws
 
