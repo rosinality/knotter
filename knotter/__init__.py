@@ -18,7 +18,7 @@ def static_server():
     httpd.serve_forever()
 
 def open_tab():
-    webbrowser.open_new_tab('localhost:{}'.format(8000))
+    webbrowser.open_new_tab('http://localhost:{}'.format(8000))
 
 def run_server():
     process = [multiprocessing.Process(target=static_server),

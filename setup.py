@@ -10,7 +10,7 @@ with open(path.join(here, 'DESCRIPTION.rst'), encoding='utf-8') as f:
 setup(
     name='knotter',
     
-    version='0.2.4',
+    version='0.2.6',
     
     description='Implementation of Mapper algorithm for Topological Data Analysis',
     long_description=long_description,
