@@ -467,9 +467,9 @@ class Server:
         self.response('main_analysis_result',
                 {'node': len(cluster),
                     'link': links,
-                    'lense': lense,
+                    'lense': [float(i) for i in lense],
                     'nodeSize': node_size.tolist(),
-                    'meanLense': mean_lense,
+                    'meanLense': [float(i) for i in mean_lense],
                     'summary': self.analyzer.variable_summary()})
 
     async def handler(self, request):
