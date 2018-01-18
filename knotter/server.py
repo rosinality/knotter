@@ -280,8 +280,8 @@ class Analyzer:
 
         return result
 
-    def descriptive_compare(self, groups):
-        point_group = collections.OrderedDict()
+    def get_node_indices(self, groups):
+        indices = {}
 
         for g in groups:
             no = g['no']
@@ -291,10 +291,51 @@ class Analyzer:
             for n in nodes:
                 points = points.union(self.cluster[n])
 
-            point_group[no] = self.df.iloc[list(points)].describe()
+            indices[no] = list(points)
+
+        return indices
+
+    def logistic_regression(self, groups):
+        X_list = []
+        y_list = []
+        indices = self.get_node_indices(groups)
+
+        for no, points in indices.items():
+            x_part = self.df.iloc[points].as_matrix()
+            X_list.append(x_part)
+            y_list.append(np.ones(x_part.shape[0]) * no)
+
+        X = np.vstack(X_list)
+        y = np.hstack(y_list)
+
+        try:
+            from sklearn.linear_model import LogisticRegression
+
+        except ImportError:
+            print('Logistic regression requires scikit-learn')
+            return
+
+        model = LogisticRegression()
+        model.fit(X, y)
+
+        accs = []
+
+        for x, y in zip(X_list, y_list):
+            y_hat = model.predict(x)
+            acc = np.sum(y_hat == y) / y.shape[0]
+            accs.append(acc)
+
+        return list(indices.keys()), accs, list(self.df.columns), \
+            model.coef_.T, model.intercept_
+
+    def descriptive_compare(self, groups):
+        point_group = collections.OrderedDict()
+
+        for no, points in self.get_node_indices(groups).items():
+            point_group[no] = self.df.iloc[points].describe()
 
         table = []
-        for agg in ('min', 'mean', '50%', 'max'):
+        for agg in ('min', 'mean', 'std', '50%', 'max'):
             sub_col = []
             for v in point_group.values():
                 sub_col.append(v.T[agg].values)
@@ -302,7 +343,7 @@ class Analyzer:
         a_table = np.hstack(table)
 
         headers = []
-        for i, j in itertools.product(('min', 'mean', 'median', 'max'),
+        for i, j in itertools.product(('min', 'mean', 'std', 'median', 'max'),
                 point_group.keys()):
             headers.append('{} {}'.format(j, i))
 
@@ -340,6 +381,7 @@ class Server:
 
         self.descriptive_report = self.env.get_template('descriptive.html')
         self.node_report = self.env.get_template('node-report.html')
+        self.lr_report = self.env.get_template('lr-report.html')
 
         self.event_map = {
                 'connect': self.connect,
@@ -351,6 +393,7 @@ class Server:
                 'coloring': self.coloring,
                 'node_info': self.node_info,
                 'compare_node': self.compare_node,
+                'logistic_regression': self.logistic_regression,
                 'show_node': self.show_node,
                 'geography': self.geography,
                 'find_point': self.find_point
@@ -402,6 +445,15 @@ class Server:
         self.response('analysis_report',
                 {'content': self.node_report.render(
                     groups=groups, rows=rows)})
+
+    def logistic_regression(self, data):
+        headers, accs, var_list, coef, intercept = \
+            self.analyzer.logistic_regression(data['group'])
+
+        self.response('analysis_report',
+            {'content': self.lr_report.render(accs=accs, var_list=var_list,
+                            headers=headers, coef=coef, intercept=intercept)})
+
 
     def compare_node(self, data):
         headers, rows = self.analyzer.descriptive_compare(data['group'])

@@ -1,0 +1,28 @@
+<table>
+    <tr>
+        <th></th>
+    {% for header in headers %}
+        <th>Group {{ header }}</th>
+    {% endfor %}
+    </tr>
+    <tr>
+        <td>% Correct</td>
+        {% for acc in accs %}
+            <td>{{ acc|round(5) }}</td>
+        {% endfor %}
+    </tr>
+    <tr>
+        <td>(Intercept)</td>
+        {% for i in intercept %}
+            <td>{{ i|round(5) }}</td>
+        {% endfor %}
+    </tr>
+    {% for coef_row in coef %}
+        <tr>
+            <td>{{ var_list[loop.index0] }}</td>
+            {% for col in coef_row %}
+                <td>{{ col|round(5) }}</td>
+            {% endfor %}    
+        </tr>
+    {% endfor %}
+</table>

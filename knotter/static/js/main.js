@@ -308,7 +308,7 @@
         sendEvent('find_point', {label: app.nodeLabeling, point: app.findPointLabel});
     };
 
-    app.compare = function (e) {
+    var getGroups = function () {
         var groups = [];
 
         for (var i = 0; i < app.groups.length; i++) {
@@ -322,8 +322,20 @@
             }
         }
 
+        return groups;
+    };
+
+    app.compare = function (e) {
+        var groups = getGroups();
+
         sendEvent('compare_node', {group: groups});        
     };
+
+    app.logisticRegression = function (e) {
+        var groups = getGroups();
+        
+        sendEvent('logistic_regression', {group: groups}); 
+    }
 
     app.groupChecked = function (e) {
         var checked = [];
