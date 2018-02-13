@@ -399,14 +399,14 @@ class Server:
                 'find_point': self.find_point
                 }
 
-    def analyze2(self, data):
+    async def analyze2(self, data):
         cluster, links, lense, mean_lense = self.analyzer.analyze2(float(data['bins']))
-        #node_size = cluster_size(cluster)
-        #node_size /= node_size.max()
+        # node_size = cluster_size(cluster)
+        # node_size /= node_size.max()
         node_size = np.ones(len(cluster))
-        #print(type(links[0][0]))
-        print(len(cluster))
-        self.response('main_analysis_result',
+        # print(type(links[0][0]))
+        # print(len(cluster))
+        await self.response('main_analysis_result',
                 {'node': len(cluster),
                     'link': links,
                     'lense': lense,
@@ -414,81 +414,81 @@ class Server:
                     'meanLense': mean_lense,
                     'summary': self.analyzer.variable_summary()})
 
-    def response(self, key, content):
+    async def response(self, key, content):
         content['type'] = key
-        self.ws.send_str(json.dumps(content))
+        await self.ws.send_str(json.dumps(content))
 
     def connect(self, data):
         pass
 
-    def find_point(self, data):
-        self.response('find_point', {'nodes':
+    async def find_point(self, data):
+        await self.response('find_point', {'nodes':
             self.analyzer.find_point(data['label'], data['point'])})
 
-    def read_data(self, data):
+    async def read_data(self, data):
         self.analyzer.load_dataframe(data['content'])
-        self.response('variable_list',
+        await self.response('variable_list',
                 {'content': list(self.analyzer.variable_list())})
 
-    def node_info(self, data):
-        self.response('node_info',
+    async def node_info(self, data):
+        await self.response('node_info',
                 {'group': data['group'],
                     'count': self.analyzer.count_points(data['nodes'])})
 
-    def geography(self, data):
+    async def geography(self, data):
         result = self.analyzer.geography(data['group'], data['latitude'], data['longitude'], data['label'])
-        self.response('geography', {'coord': result})
+        await self.response('geography', {'coord': result})
 
-    def show_node(self, data):
+    async def show_node(self, data):
         groups, rows = self.analyzer.show_node(data['group'],
                 data['label'])
-        self.response('analysis_report',
+        await self.response('analysis_report',
                 {'content': self.node_report.render(
                     groups=groups, rows=rows)})
 
-    def logistic_regression(self, data):
+    async def logistic_regression(self, data):
         headers, accs, var_list, coef, intercept = \
             self.analyzer.logistic_regression(data['group'])
 
-        self.response('analysis_report',
+        await self.response('analysis_report',
             {'content': self.lr_report.render(accs=accs, var_list=var_list,
                             headers=headers, coef=coef, intercept=intercept)})
 
 
-    def compare_node(self, data):
+    async def compare_node(self, data):
         headers, rows = self.analyzer.descriptive_compare(data['group'])
-        self.response('analysis_report',
+        await self.response('analysis_report',
                 {'content':
                     self.descriptive_report.render(
                         headers=headers, rows=rows)})
 
-    def variable_histogram(self, data):
-        self.response('variable_histogram',
+    async def variable_histogram(self, data):
+        await self.response('variable_histogram',
                 {'content': list(self.analyzer.df[data['content']].dropna()
                     .as_matrix().tolist())})
 
-    def lense_change(self, data):
+    async def lense_change(self, data):
         try:
             self.analyzer.lense_change(data['variables'], data['lenses'])
-            self.response('lense_summary',
+            await self.response('lense_summary',
                 {'content': self.analyzer.lense_summary()})
 
         except:
             pass
         
-    def cover_change(self, data):
+    async def cover_change(self, data):
         self.analyzer.cover_change(data['covers'])
-        self.response('lense_summary',
+        await self.response('lense_summary',
                 {'content': self.analyzer.lense_summary()})
 
-    def coloring(self, data):
+    async def coloring(self, data):
         num_lenses = self.analyzer.projection.shape[1]
         no = data['no']
 
         if no.startswith('Lense '):
             index = int(no.replace('Lense ', '')) - 1
             values = self.analyzer.projection[:, index]
-            self.response('coloring',
+            await self.response('coloring',
                     {'coloring': self.analyzer.lense_coloring(index),
                         'values': values.tolist(),
                         'min': values.min().tolist(),
@@ -497,13 +497,13 @@ class Server:
         else:
             #no -= num_lenses
             values = np.nan_to_num(self.analyzer.df[no].values)
-            self.response('coloring',
+            await self.response('coloring',
                     {'coloring': self.analyzer.variable_coloring(no),
                         'values': values.tolist(),
                         'min': values.min().tolist(),
                         'max': values.max().tolist()})
 
-    def analyze(self, data):
+    async def analyze(self, data):
         metric_label = {'Euclidean L2': 'euclidean',
                 'Minkowski L1': 'minkowski',
                 'Chebyshev L∞': 'chebyshev',
@@ -516,7 +516,7 @@ class Server:
         node_size = cluster_size(cluster)
         node_size /= node_size.max()
 
-        self.response('main_analysis_result',
+        await self.response('main_analysis_result',
                 {'node': len(cluster),
                     'link': links,
                     'lense': [float(i) for i in lense],
@@ -533,7 +533,7 @@ class Server:
                 data = json.loads(msg.data)
 
                 try:
-                    self.event_map[data['type']](data)
+                    await self.event_map[data['type']](data)
 
                 except KeyError:
                     print('Wrong message type: {}'.format(data['type']))
@@ -581,12 +581,12 @@ def ws_handler(request):
     return ws
 
 @asyncio.coroutine
-def init(loop):
+async def init(loop):
     appServer = Server()
     app = web.Application(loop = loop)
     app.router.add_route('GET', '/ws', appServer.handler)
 
-    server = yield from loop.create_server(app.make_handler(),
+    server = await loop.create_server(app.make_handler(),
             '127.0.0.1', 9000)
     print('Server started at http://localhost:9000')
 
