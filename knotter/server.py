@@ -215,12 +215,12 @@ class Analyzer:
 
         for i in range(dim):
             data = {}
-            data["min"] = self.projection[:, i].min()
-            data["max"] = self.projection[:, i].max()
-            data["size"] = abs(self.covers[i][0, 1] - self.covers[i][0, 0])
+            data["min"] = float(self.projection[:, i].min())
+            data["max"] = float(self.projection[:, i].max())
+            data["size"] = float(abs(self.covers[i][0, 1] - self.covers[i][0, 0]))
 
             if self.lense_type[i] == "Principal Component":
-                data["explained_variance"] = self.explained_variance[pca_nth]
+                data["explained_variance"] = float(self.explained_variance[pca_nth])
                 pca_nth += 1
 
             result.append(data)
